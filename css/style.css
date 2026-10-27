@@ -393,6 +393,8 @@ img { max-width: 100%; display: block; }
 @media (max-width: 760px) {
   .gourami { width: 80px; height: 51px; }
 }
+/* Phones: lives in the open space at the top right of the hero and scrolls away with it */
+.gourami.is-hero { position: absolute; }
 @media (prefers-reduced-motion: reduce) {
   .gourami__tail, .gourami__pec, .gourami__feelers { animation: none; }
 }

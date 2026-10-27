@@ -181,8 +181,27 @@ if (fish) {
   };
   const fits = () => sideRange("left")[1] >= 8;
 
+  // On phones there are no side margins, so the fish keeps to the open band between the nav and
+  // the badge at the top of the hero (page coordinates, so it scrolls with the hero)
+  const hero = document.querySelector(".hero");
+  const badge = hero && hero.querySelector(".badge");
+  const phone = window.matchMedia("(max-width: 760px)");
+  const heroBox = () => {
+    const { w, h } = size();
+    const sy = window.scrollY;
+    const top = hero.getBoundingClientRect().top + 76 + sy;
+    const bottom = badge.getBoundingClientRect().top - h - 4 + sy;
+    return { x: [8, window.innerWidth - w - 8], y: [top, Math.max(top, bottom)] };
+  };
+  const getMode = () => (fits() ? "sides" : phone.matches && badge ?"hero" : null);
+  let mode = getMode();
+
   let side = Math.random() < 0.5 ? "left" : "right";
   const pickTarget = () => {
+    if (mode === "hero") {
+      const { x, y } = heroBox();
+      return { x: rand(x[0], x[1]), y: rand(y[0], y[1]) };
+    }
     const [minX, maxX] = sideRange(side);
     const [minY, maxY] = yRange();
     return { x: rand(minX, Math.max(minX, maxX)), y: rand(minY, maxY) };
@@ -204,12 +223,14 @@ if (fish) {
   const spawnBubble = (text) => {
     if (pos.x < 0 || pos.x > window.innerWidth - size().w) return;
     const { w, h } = size();
+    // Bubbles are fixed to the viewport; in hero mode the fish's position is in page coordinates
+    const top = mode === "hero" ? pos.y - window.scrollY : pos.y;
     const facingLeft = fish.classList.contains("is-left");
     const b = document.createElement("span");
     b.className = text ? "gourami-bubble gourami-bubble--hi" : "gourami-bubble";
     if (text) b.textContent = text;
     b.style.left = `${pos.x + (facingLeft ? w * 0.02 : w * 0.92)}px`;
-    b.style.top = `${pos.y + h * 0.3 - (text ? 18 : 0)}px`;
+    b.style.top = `${top + h * 0.3 - (text ? 18 : 0)}px`;
     document.body.appendChild(b);
     b.addEventListener("animationend", () => b.remove());
   };
@@ -227,7 +248,7 @@ if (fish) {
     }
     phase = null;
     pausedUntil = now + rand(1200, 3500);
-    if (Math.random() < 0.3) {
+    if (mode === "sides" && Math.random() < 0.3) {
       phase = "exit";
       const [minY, maxY] = yRange();
       target = { x: side === "left" ? -w - 30 : window.innerWidth + 30, y: rand(minY, maxY) };
@@ -240,9 +261,7 @@ if (fish) {
     const dt = Math.min((now - last) / 1000, 0.05);
     last = now;
 
-    const show = fits();
-    fish.style.visibility = show ? "visible" : "hidden";
-    if (!show) {
+    if (!mode) {
       requestAnimationFrame(swim);
       return;
     }
@@ -278,24 +297,52 @@ if (fish) {
     requestAnimationFrame(swim);
   };
 
+  const applyMode = () => {
+    mode = getMode();
+    fish.classList.toggle("is-hero", mode === "hero");
+    fish.style.visibility = mode ? "visible" : "hidden";
+  };
+
   const rest = () => {
-    // Reduced motion: rest quietly low in the right margin instead of swimming
+    // Reduced motion: rest quietly low in the right margin (or beside the badge on phones) instead of swimming
+    applyMode();
     side = "right";
-    pos = { x: sideRange("right")[1], y: yRange()[1] };
-    fish.style.visibility = fits() ? "visible" : "hidden";
+    if (mode === "hero") {
+      const { x, y } = heroBox();
+      pos = { x: x[1], y: y[1] };
+    } else {
+      pos = { x: sideRange("right")[1], y: yRange()[1] };
+    }
     place();
   };
 
   if (reduceMotion) {
     rest();
   } else {
+    applyMode();
     place();
     requestAnimationFrame(swim);
   }
 
   window.addEventListener("resize", () => {
     if (reduceMotion) return rest();
+    const prev = mode;
+    applyMode();
+    if (mode !== prev) {
+      // Switched between phone and desktop layouts: start over in the new area
+      phase = null;
+      vel = { x: 0, y: 0 };
+      pos = pickTarget();
+      target = pickTarget();
+      return place();
+    }
     if (phase) return;
+    if (mode === "hero") {
+      const { x, y } = heroBox();
+      pos.x = Math.min(Math.max(pos.x, x[0]), x[1]);
+      pos.y = Math.min(Math.max(pos.y, y[0]), y[1]);
+      return (target = pickTarget());
+    }
     const [minX, maxX] = sideRange(side);
     const [minY, maxY] = yRange();
     pos.x = Math.min(Math.max(pos.x, minX), Math.max(minX, maxX));
