@@ -114,20 +114,49 @@ filterButtons.forEach((btn) =>
 );
 
 // ============ CONTACT FORM ============
-// No backend yet: this opens the visitor's email app with the message filled in.
-// To receive messages directly, swap in a service like Formspree later.
+// Submits to Netlify Forms. The hidden "bot-field" is a honeypot: people never see it,
+// so if it has a value the sender is a bot and the message is dropped.
+// If the submission fails (e.g. viewing the site locally), fall back to the visitor's email app.
 const form = document.getElementById("contactForm");
 const formNote = document.getElementById("formNote");
 const YOUR_EMAIL = "anthonydanrivera@gmail.com";
 
-form.addEventListener("submit", (e) => {
-  e.preventDefault();
-  const data = new FormData(form);
+const openEmailApp = (data) => {
   const subject = encodeURIComponent(`Portfolio message from ${data.get("name")}`);
   const body = encodeURIComponent(`${data.get("message")}\n\n— ${data.get("name")} (${data.get("email")})`);
   window.location.href = `mailto:${YOUR_EMAIL}?subject=${subject}&body=${body}`;
   formNote.textContent = "Opening your email app…";
-  form.reset();
+};
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const data = new FormData(form);
+
+  if (data.get("bot-field")) {
+    // Pretend it worked so the bot moves on
+    formNote.textContent = "Thanks! Your message has been sent.";
+    form.reset();
+    return;
+  }
+
+  const button = form.querySelector('button[type="submit"]');
+  button.disabled = true;
+  formNote.textContent = "Sending…";
+
+  try {
+    const res = await fetch("/", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams(data).toString(),
+    });
+    if (!res.ok) throw new Error(res.status);
+    formNote.textContent = "Thanks! Your message has been sent.";
+    form.reset();
+  } catch {
+    openEmailApp(data);
+  } finally {
+    button.disabled = false;
+  }
 });
 
 // ============ HONEY GOURAMI ============

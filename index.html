@@ -216,7 +216,13 @@
           Email
         </a>
       </div>
-      <form class="contact__form reveal" id="contactForm">
+      <form class="contact__form reveal" id="contactForm" name="contact" method="POST"
+        data-netlify="true" netlify-honeypot="bot-field">
+        <input type="hidden" name="form-name" value="contact" />
+        <!-- Honeypot: hidden from people, but spam bots fill it in and get filtered out -->
+        <p class="honeypot" aria-hidden="true">
+          <label>Leave this field empty <input name="bot-field" tabindex="-1" autocomplete="off" /></label>
+        </p>
         <div class="field">
           <label for="name">Name</label>
           <input id="name" name="name" type="text" required />

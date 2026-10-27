@@ -306,6 +306,7 @@ img { max-width: 100%; display: block; }
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
 }
 .contact__form .btn { justify-self: start; }
+.honeypot { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 .form-note { grid-column: 1 / -1; font-size: 0.88rem; color: var(--accent-2); min-height: 1.4em; }
 
 /* ============ FOOTER ============ */
