@@ -74,7 +74,7 @@ document.querySelectorAll(".reveal").forEach((el, i) => {
 
 // ============ TYPING EFFECT ============
 // Edit these to describe yourself
-const roles = ["Freelance Web Developer", "Operations Planner", "Honey Gourami Fan"];
+const roles = ["Freelance Web Developer", "Operations Planner", "Honey Gourami Fan!"];
 const typedEl = document.getElementById("typed");
 let roleIndex = 0;
 let charIndex = 0;
@@ -181,19 +181,21 @@ if (fish) {
   };
   const fits = () => sideRange("left")[1] >= 8;
 
-  // On phones there are no side margins, so the fish keeps to the open band between the nav and
-  // the badge at the top of the hero (page coordinates, so it scrolls with the hero)
+  // When the window is too narrow for side margins, the fish chills in the open space to the right of the
+  // badge at the top of the hero, drifting a little (page coordinates, so it scrolls with the hero)
   const hero = document.querySelector(".hero");
   const badge = hero && hero.querySelector(".badge");
-  const phone = window.matchMedia("(max-width: 760px)");
   const heroBox = () => {
     const { w, h } = size();
     const sy = window.scrollY;
-    const top = hero.getBoundingClientRect().top + 76 + sy;
-    const bottom = badge.getBoundingClientRect().top - h - 4 + sy;
-    return { x: [8, window.innerWidth - w - 8], y: [top, Math.max(top, bottom)] };
+    const b = badge.getBoundingClientRect();
+    const left = b.right + 12;
+    // Stay close to the badge even when the hero is wide
+    const right = Math.min(hero.getBoundingClientRect().right - w - 12, left + 80);
+    const mid = b.top + b.height / 2 - h / 2 + sy;
+    return { x: [left, Math.max(left, right)], y: [mid - 6, mid + 6] };
   };
-  const getMode = () => (fits() ? "sides" : phone.matches && badge ?"hero" : null);
+  const getMode = () => (fits() ? "sides" : badge ? "hero" : null);
   let mode = getMode();
 
   let side = Math.random() < 0.5 ? "left" : "right";
@@ -247,7 +249,8 @@ if (fish) {
       return;
     }
     phase = null;
-    pausedUntil = now + rand(1200, 3500);
+    // Beside the badge it lingers longer between little drifts
+    pausedUntil = now + (mode === "hero" ? rand(3000, 7000) : rand(1200, 3500));
     if (mode === "sides" && Math.random() < 0.3) {
       phase = "exit";
       const [minY, maxY] = yRange();
@@ -304,7 +307,7 @@ if (fish) {
   };
 
   const rest = () => {
-    // Reduced motion: rest quietly low in the right margin (or beside the badge on phones) instead of swimming
+    // Reduced motion: rest quietly low in the right margin (or beside the badge in narrow windows) instead of swimming
     applyMode();
     side = "right";
     if (mode === "hero") {
@@ -329,7 +332,7 @@ if (fish) {
     const prev = mode;
     applyMode();
     if (mode !== prev) {
-      // Switched between phone and desktop layouts: start over in the new area
+      // Switched between the margins and the badge spot: start over in the new area
       phase = null;
       vel = { x: 0, y: 0 };
       pos = pickTarget();
