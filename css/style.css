@@ -1,17 +1,18 @@
 /* ============ THEME TOKENS ============ */
 /* Light (default): white, gray, blue */
 :root {
+  color-scheme: light;
   --bg: #ffffff;
   --bg-elev: #f5f7fa;
   --border: #e2e6ec;
   --text: #1f2937;
   --muted: #6b7280;
-  --accent: #2563eb;
+  --accent: #0891b2;
   --accent-2: #0ea5e9;
   --radius: 14px;
   --maxw: 1000px;
-  --font: "Inter", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-  --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  --font: "DM Sans", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  --mono: "DM Mono", ui-monospace, Consolas, monospace;
   /* Aquarium glass for the nav, hero and section boxes: a faint aqua tint with greenish glass edges */
   --glass: rgba(240, 253, 255, 0.8);
   --glass-border: rgba(94, 214, 200, 0.45);
@@ -27,13 +28,15 @@
 
 /* Dark: slate gray and blue */
 [data-theme="dark"] {
+  /* Native controls (dropdowns, scrollbars) follow the theme too */
+  color-scheme: dark;
   --bg: #0f172a;
   --bg-elev: #1e293b;
   --border: #334155;
   --text: #e2e8f0;
   --muted: #94a3b8;
-  --accent: #3b82f6;
-  --accent-2: #38bdf8;
+  --accent: #06b6d4;
+  --accent-2: #67e8f9;
   --glass: rgba(15, 40, 58, 0.8);
   --glass-border: rgba(94, 214, 200, 0.18);
   --glass-shadow: 0 10px 40px -16px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(165, 243, 252, 0.12), inset 0 0 40px rgba(34, 211, 238, 0.06);
@@ -100,6 +103,10 @@ img { max-width: 100%; display: block; }
 .accent { color: var(--accent); }
 
 .gradient-text {
+  /* Extra room below and to the right so the gradient reaches the tails and overhangs of letters like y and g
+     (otherwise they get clipped); the negative margin keeps the spacing after the word unchanged */
+  padding: 0 0.08em 0.12em 0;
+  margin-right: -0.08em;
   background: linear-gradient(90deg, var(--accent), var(--accent-2));
   -webkit-background-clip: text;
   background-clip: text;
@@ -108,19 +115,23 @@ img { max-width: 100%; display: block; }
 
 ::selection { background: var(--accent); color: #fff; }
 
+/* Keyboard users get a clear aqua ring on whatever they've tabbed to (mouse clicks don't show it) */
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
 /* ============ NAV ============ */
 .nav {
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 100;
 }
-/* Same pill as the hero badge, floating just below the top of the window */
+/* A glass pill floating just below the top of the window */
 .nav__inner {
-  display: flex; align-items: center; justify-content: space-between;
+  /* Three columns with equal outer sides, so the links sit in the true center whatever the logo's width */
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
   width: calc(100% - 32px);
   height: 56px;
   margin-top: 12px;
-  padding: 0 9px 0 22px;
+  padding: 0 9px;
   border: 1px solid var(--glass-border);
   border-radius: 999px;
   background: var(--glass);
@@ -128,17 +139,20 @@ img { max-width: 100%; display: block; }
   -webkit-backdrop-filter: blur(16px) saturate(160%);
   backdrop-filter: blur(16px) saturate(160%);
 }
-.nav__logo { font-family: var(--mono); font-weight: 500; font-size: 1.15rem; color: var(--text); }
-.nav__logo span { color: var(--text); }
-.nav__links { display: flex; gap: 8px; }
+.nav__logo { grid-column: 1; justify-self: start; margin-left: 13px; display: flex; align-items: center; gap: 10px; color: var(--text); }
+.nav__mark { font-family: var(--mono); font-weight: 500; font-size: 1.15rem; }
+.nav__mark span { color: var(--accent); }
+.nav__name { font-weight: 600; font-size: 0.98rem; letter-spacing: -0.01em; }
+.nav__links { grid-column: 2; display: flex; gap: 8px; }
 .nav__links a {
   padding: 6px 14px;
   border-radius: 999px;
   font-size: 0.92rem;
+  font-weight: 500;
   color: var(--text);
 }
 .nav__links a.is-active { color: var(--accent); }
-.nav__actions { display: flex; gap: 8px; }
+.nav__actions { grid-column: 3; justify-self: end; display: flex; gap: 8px; }
 
 .icon-btn {
   width: 38px; height: 38px;
@@ -165,9 +179,11 @@ img { max-width: 100%; display: block; }
 .hero {
   position: relative;
   width: calc(100% - 32px);
-  min-height: calc(100vh - 100px);
+  /* Short enough that the top of the About box peeks in at the bottom of the first screen */
+  min-height: calc(100vh - 320px);
+  min-height: calc(100svh - 320px);
   margin: 100px auto 0;
-  padding: 48px 40px 110px;
+  padding: 48px 40px 64px;
   display: flex; flex-direction: column; justify-content: center;
   border-radius: var(--radius);
   isolation: isolate;
@@ -193,43 +209,16 @@ img { max-width: 100%; display: block; }
   mask-image: linear-gradient(to bottom, #000 15%, transparent 85%);
   pointer-events: none;
 }
-.hero .badge, .hero .btn--ghost, .hero .social-btn:not(:hover) { background: var(--bg); }
-.hero__scroll {
-  position: absolute; bottom: 28px; left: 50%;
-  width: 44px; height: 44px; margin-left: -22px;
-  display: grid; place-items: center;
-  border-radius: 50%;
-  color: var(--accent);
-  animation: nudge 2s ease-in-out infinite;
-}
-.hero__scroll:hover { color: var(--text); }
-@keyframes nudge { 50% { transform: translateY(6px); } }
-.badge {
-  display: inline-flex; align-items: center; gap: 8px;
-  align-self: flex-start;
-  padding: 6px 14px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: var(--bg-elev);
-  font-size: 0.82rem;
-  color: var(--text);
-  margin-bottom: 28px;
-}
-.badge__dot {
-  width: 8px; height: 8px; border-radius: 50%;
-  background: #22c55e;
-  box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6);
-  animation: pulse 2s infinite;
-}
-@keyframes pulse {
-  70% { box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
-}
 .hero__title { font-size: clamp(2.4rem, 6vw, 4.2rem); line-height: 1.1; font-weight: 700; letter-spacing: -0.03em; }
-.hero__role { font-family: var(--mono); font-size: clamp(1rem, 2.4vw, 1.35rem); color: var(--text); margin: 18px 0 8px; min-height: 1.7em; }
-.cursor { color: var(--accent); animation: blink 1s steps(1) infinite; }
+/* A blinking terminal-style cursor right after the name */
+.cursor {
+  display: inline-block; width: 0.07em; height: 0.85em; margin-left: 0.1em;
+  vertical-align: -0.05em; border-radius: 1px;
+  background: var(--text);
+  animation: blink 1s steps(1) infinite;
+}
 @keyframes blink { 50% { opacity: 0; } }
-.hero__lead { max-width: 540px; color: var(--text); font-size: 1.08rem; }
+.hero__lead { max-width: 600px; margin-top: 22px; color: var(--text); font-size: 1.2rem; line-height: 1.75; }
 .hero__cta { display: flex; flex-wrap: wrap; gap: 12px; margin: 34px 0 30px; }
 
 .btn {
@@ -242,18 +231,26 @@ img { max-width: 100%; display: block; }
   transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s, background 0.2s;
 }
 .btn:hover { transform: translateY(-2px); }
-.btn--primary { background: var(--accent); color: #fff; }
-.btn--primary:hover { box-shadow: 0 8px 24px -8px var(--accent); }
-.btn--ghost { border-color: var(--border); background: var(--bg-elev); }
+/* Solid aqua with a soft glassy sheen along the top, so it stays the main call to action */
+.btn--primary {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 82%, #fff), var(--accent));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  color: #fff;
+}
+.btn--primary:hover { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 8px 24px -8px var(--accent); }
+/* The secondary buttons are frosted aquarium glass, like the form fields */
+.btn--ghost, .social-btn {
+  border: 1px solid var(--glass-border);
+  background-color: color-mix(in srgb, var(--bg) 60%, transparent);
+  box-shadow: inset 0 1px 2px color-mix(in srgb, var(--accent) 10%, transparent);
+}
 .btn--ghost:hover { border-color: var(--accent); }
 
 .socials { display: flex; flex-wrap: wrap; gap: 10px; }
 .social-btn {
   display: inline-flex; align-items: center; gap: 8px;
   padding: 9px 16px;
-  border: 1px solid var(--border);
   border-radius: 10px;
-  background: var(--bg-elev);
   color: var(--text);
   font-size: 0.9rem;
   font-weight: 500;
@@ -269,10 +266,9 @@ img { max-width: 100%; display: block; }
 }
 .social-btn:hover svg { color: #fff; }
 .contact__socials { margin-bottom: 28px; }
-.contact__socials .social-btn:not(:hover) { background: var(--bg); }
 
 /* ============ SECTIONS ============ */
-/* Each section sits in its own grey box, like the hero badge */
+/* Each section sits in its own glass box */
 .section {
   width: calc(100% - 32px);
   margin: 32px auto 0;
@@ -285,18 +281,19 @@ img { max-width: 100%; display: block; }
   backdrop-filter: blur(16px) saturate(160%);
 }
 .section__title {
-  display: flex; align-items: center; gap: 12px;
+  display: flex; align-items: center;
   font-size: clamp(1.6rem, 3.5vw, 2rem);
   letter-spacing: -0.02em;
+  text-transform: lowercase;
   margin-bottom: 36px;
 }
-.subhead { font-size: 0.78rem; margin: 48px 0 16px; color: var(--text); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; }
+.section__title::before { content: "/"; content: "/" / ""; color: var(--accent); font-family: var(--mono); }
 #education { margin-top: 72px; }
 
 /* ============ ABOUT ============ */
 .about { display: grid; grid-template-columns: 1.6fr 1fr; gap: 48px; align-items: start; }
-.about__text p { color: var(--text); margin-bottom: 16px; }
-.about__text strong { color: var(--text); font-weight: 600; }
+/* Reading text is a little larger with roomier lines, for a lighter, airier feel */
+.about__text p { color: var(--text); margin-bottom: 18px; font-size: 1.1rem; line-height: 1.8; }
 .about__photo img,
 .photo-placeholder {
   width: 100%; aspect-ratio: 1; border-radius: var(--radius);
@@ -306,47 +303,122 @@ img { max-width: 100%; display: block; }
 .photo-placeholder {
   display: flex; align-items: center; justify-content: center;
   font: 500 3.4rem var(--mono);
+  /* A code-editor panel filled with water: light in the light theme, deep in the dark one */
+  --tank-top: #f0fbfe;
+  --tank-bottom: #c6ebf4;
+  --tank-dots: rgba(8, 145, 178, 0.13);
+  --tank-border: color-mix(in srgb, var(--accent) 35%, transparent);
+  --tank-glow: rgba(8, 145, 178, 0.25);
+  --tank-plant: #059669;
+  --tank-gourami: #d97706;
+  --tank-tetra: #0e7490;
+  --tank-bubble: #64748b;
+  --tank-gravel: #a8a29e;
+  position: relative;
   color: var(--text);
-  background: var(--bg);
+  background:
+    radial-gradient(circle, var(--tank-dots) 1px, transparent 1.5px) 0 0 / 18px 18px,
+    linear-gradient(180deg, var(--tank-top), var(--tank-bottom));
+  border-color: var(--tank-border);
+  box-shadow: 0 20px 40px -24px rgba(8, 145, 178, 0.55);
 }
-.photo-placeholder span { color: var(--text); }
+[data-theme="dark"] .photo-placeholder {
+  --tank-top: #111a2e;
+  --tank-bottom: #0b1220;
+  --tank-dots: rgba(148, 163, 184, 0.14);
+  --tank-border: #1e293b;
+  --tank-glow: rgba(34, 211, 238, 0.45);
+  --tank-plant: #34d399;
+  --tank-gourami: #fbbf24;
+  --tank-tetra: #67e8f9;
+  --tank-bubble: #94a3b8;
+}
+.photo-placeholder::before {
+  content: ""; position: absolute; top: 14px; left: 14px;
+  width: 9px; height: 9px; border-radius: 50%;
+  background: #f87171;
+  box-shadow: 15px 0 #fbbf24, 30px 0 #34d399;
+}
+.photo-placeholder > span { color: var(--accent); text-shadow: 0 0 18px var(--tank-glow); }
 
-.skills { display: flex; flex-wrap: wrap; gap: 10px; }
-.skills li {
-  padding: 8px 16px;
-  border: 1px solid var(--border);
-  background: var(--bg);
-  border-radius: 999px;
-  font-size: 0.88rem;
-  transition: border-color 0.2s, color 0.2s, transform 0.2s;
+/* ASCII aquarium inside the editor panel */
+.photo-placeholder { overflow: hidden; }
+.tank { position: absolute; inset: 0; pointer-events: none; font: 12px/1.15 var(--mono); container-type: size; }
+/* Rows are wider than the panel and get clipped, so the plants reach both edges at any panel size */
+.tank pre { position: absolute; left: 4px; margin: 0; font: inherit; }
+.tank__plants {
+  bottom: 18px; color: var(--tank-plant);
+  transform-origin: bottom center;
+  animation: tank-sway 4s ease-in-out infinite alternate;
 }
-.skills li:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+.tank__gravel { bottom: 6px; color: var(--tank-gravel); opacity: 0.7; }
+.tank__fish { position: absolute; left: 0; white-space: pre; animation: tank-swim-right 14s linear infinite; }
+.tank__fish--gourami { top: 20%; color: var(--tank-gourami); text-shadow: 0 0 10px color-mix(in srgb, var(--tank-gourami) 35%, transparent); }
+.tank__fish--tetra { top: 63%; color: var(--tank-tetra); animation-name: tank-swim-left; animation-duration: 9s; animation-delay: -3s; }
+.tank__bubble { position: absolute; bottom: 70px; color: var(--tank-bubble); animation: tank-bubble 5s ease-in infinite; }
+.tank__bubble--a { left: 28%; }
+.tank__bubble--b { left: 70%; animation-delay: -2.5s; }
+
+@keyframes tank-sway { from { transform: skewX(-3deg); } to { transform: skewX(3deg); } }
+@keyframes tank-swim-right { from { transform: translateX(-80px); } to { transform: translateX(100cqw); } }
+@keyframes tank-swim-left { from { transform: translateX(100cqw); } to { transform: translateX(-40px); } }
+@keyframes tank-bubble {
+  0% { transform: translateY(0); opacity: 0; }
+  15% { opacity: 0.9; }
+  100% { transform: translateY(-160px); opacity: 0; }
+}
+
 
 /* ============ TIMELINE ============ */
-.timeline { position: relative; }
+/* A column of tiny bubbles down the left side, with a little ASCII fish marking each entry.
+   Each entry draws its own stretch of bubbles starting just below its fish, so the line never runs through one */
+.timeline { padding-left: 30px; }
 .timeline__item { position: relative; padding-bottom: 36px; }
 .timeline__item:last-child { padding-bottom: 0; }
-.timeline__date { font: 300 0.74rem var(--mono); color: var(--text); letter-spacing: 0.02em; }
+.timeline__item::after {
+  content: ""; position: absolute; left: -25px; top: 30px; bottom: 4px; width: 4px;
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent) 55%, transparent) 1.3px, transparent 1.8px) 0 0 / 4px 9px repeat-y;
+}
+/* After the last entry the bubbles fade away instead of stopping abruptly */
+.timeline__item:last-child::after {
+  bottom: 0;
+  -webkit-mask-image: linear-gradient(to bottom, #000 40%, transparent);
+  mask-image: linear-gradient(to bottom, #000 40%, transparent);
+}
+/* The same blue tetra that swims in the About me tank */
+.timeline__item::before {
+  content: "><>"; content: "><>" / "";
+  position: absolute; top: 0; left: -30px; width: 14px;
+  display: flex; justify-content: center;
+  font: 500 0.85rem/1.7rem var(--mono); white-space: nowrap;
+  color: #0e7490;
+}
+[data-theme="dark"] .timeline__item::before { color: #67e8f9; }
+.timeline__date { font: 400 0.8rem var(--mono); color: var(--text); letter-spacing: 0.02em; }
 .timeline__item h3 { font-size: 1.1rem; font-weight: 600; margin: 2px 0 6px; }
 .timeline__item p { color: var(--text); max-width: 620px; }
 .timeline__points { max-width: 680px; margin-top: 6px; }
-.timeline__points li { position: relative; padding-left: 18px; color: var(--text); margin-bottom: 4px; }
-.timeline__points li::before { content: "▹"; position: absolute; left: 0; color: var(--accent); }
+.timeline__points li { position: relative; padding-left: 18px; color: var(--text); margin-bottom: 6px; font-size: 1.06rem; line-height: 1.75; }
+/* A casual two-column list of technologies inside About me */
+.tech-list { display: grid; grid-template-columns: repeat(2, minmax(0, 220px)); gap: 4px 24px; margin: -6px 0 22px; }
+.tech-list li { position: relative; padding-left: 18px; font-size: 1.05rem; line-height: 1.75; }
+
+/* Clear glass beads, tinted and edged like the aquarium glass of the section boxes */
+.timeline__points li::before,
+.tech-list li::before {
+  content: ""; position: absolute; left: 3px; top: 0.68em;
+  width: 7px; height: 7px; border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
 
 /* ============ PROJECTS ============ */
-.filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
-.filter {
-  padding: 7px 16px; border-radius: 999px;
-  border: 1px solid var(--border); background: transparent; color: var(--muted);
-  font: 500 0.85rem var(--font); cursor: pointer; transition: all 0.2s;
-}
-.filter:hover { color: var(--text); }
-.filter.is-active { background: var(--accent); border-color: var(--accent); color: #fff; }
-
 .projects { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+/* Frosted aquarium glass, like the buttons and form fields */
 .card {
-  border: 1px solid var(--border);
-  background: var(--bg);
+  border: 1px solid var(--glass-border);
+  background-color: color-mix(in srgb, var(--bg) 60%, transparent);
+  box-shadow: inset 0 1px 2px color-mix(in srgb, var(--accent) 10%, transparent);
   border-radius: var(--radius);
   overflow: hidden;
   transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
@@ -356,7 +428,6 @@ img { max-width: 100%; display: block; }
   border-color: color-mix(in srgb, var(--accent) 60%, var(--border));
   box-shadow: 0 20px 40px -20px color-mix(in srgb, var(--accent) 50%, transparent);
 }
-.card.is-hidden { display: none; }
 .card__thumb {
   aspect-ratio: 16 / 9;
   display: grid; place-items: center;
@@ -366,12 +437,12 @@ img { max-width: 100%; display: block; }
   overflow: hidden;
 }
 .card__thumb img { width: 100%; height: 100%; object-fit: cover; object-position: top; transition: transform 0.5s; }
-.card__thumb:has(img) { border-bottom: 1px solid var(--border); }
+.card__thumb:has(img) { border-bottom: 1px solid var(--glass-border); }
 .card:hover .card__thumb img { transform: scale(1.05); }
 .card__body { padding: 22px; }
-.card__label { display: block; font: 0.75rem var(--mono); color: var(--accent-2); margin-bottom: 4px; }
+.card__label { display: block; font: 0.75rem var(--mono); color: var(--accent); margin-bottom: 4px; }
 .card__body h3 { font-size: 1.15rem; margin-bottom: 6px; }
-.card__body p { color: var(--text); font-size: 0.94rem; }
+.card__body p { color: var(--text); font-size: 1rem; line-height: 1.75; }
 .tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0; }
 .tags li {
   font: 0.75rem var(--mono);
@@ -381,37 +452,56 @@ img { max-width: 100%; display: block; }
 }
 .card__links { display: flex; gap: 18px; font-size: 0.9rem; font-weight: 500; }
 .card__links a { color: var(--text); transition: color 0.2s; }
+/* Arrows are drawn as icons rather than text characters, which come from different fallback fonts and don't match */
+.card__links svg { width: 0.9em; height: 0.9em; margin-left: 2px; vertical-align: -0.08em; }
 .card__links a:hover { color: var(--accent); }
 
 /* ============ CONTACT ============ */
 .contact { margin-bottom: 80px; }
-.contact__lead { color: var(--text); max-width: 540px; margin-bottom: 28px; }
+.contact__lead { color: var(--text); max-width: 580px; margin-bottom: 28px; font-size: 1.1rem; line-height: 1.8; }
 .contact__form { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; max-width: 640px; }
 .field { display: flex; flex-direction: column; gap: 6px; }
 .field--full { grid-column: 1 / -1; }
-.field label { font-size: 0.78rem; font-weight: 500; color: var(--text); letter-spacing: 0.02em; }
-.field input, .field textarea {
+.field label { font-size: 0.88rem; font-weight: 500; color: var(--text); }
+/* Frosted aquarium glass, edged like the section boxes (deep, translucent glass in dark mode) */
+.field input, .field select, .field textarea {
   padding: 12px 14px;
   border-radius: 10px;
-  border: 1px solid var(--border);
-  background: var(--bg);
+  border: 1px solid var(--glass-border);
+  background-color: color-mix(in srgb, var(--bg) 60%, transparent);
+  box-shadow: inset 0 1px 2px color-mix(in srgb, var(--accent) 10%, transparent);
   color: var(--text);
   font: inherit;
   resize: vertical;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
 }
-.field input:focus, .field textarea:focus {
+.field input:hover, .field select:hover, .field textarea:hover {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--glass-border));
+}
+/* Our own aqua arrow instead of the browser's default one */
+.field select {
+  appearance: none; -webkit-appearance: none;
+  padding-right: 42px; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230891b2' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 14px center; background-size: 16px;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
 }
-.contact__form .btn { justify-self: start; }
+.field__optional { font-weight: 400; color: var(--text); }
+/* Slightly softer than typed text so it still reads as a hint */
+.field ::placeholder { color: var(--text); opacity: 0.7; }
+.form-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; }
+.form-reply { font-size: 0.85rem; color: var(--text); }
 .honeypot { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
-.form-note { grid-column: 1 / -1; font-size: 0.88rem; color: var(--accent-2); min-height: 1.4em; }
+.form-note { grid-column: 1 / -1; font-size: 0.88rem; color: var(--accent); min-height: 1.4em; }
 
 /* ============ FOOTER ============ */
 .footer { border-top: 1px solid var(--border); padding: 28px 0; font-size: 0.85rem; color: var(--text); }
-.footer__inner { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+/* Same width and inner padding as the section boxes, so the footer text lines up with theirs */
+.footer__inner { width: calc(100% - 32px); padding: 0 41px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
 
 /* ============ SCROLL REVEAL ============ */
 .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
@@ -424,10 +514,31 @@ img { max-width: 100%; display: block; }
 }
 
 /* ============ RESPONSIVE ============ */
+/* Short laptop screens: a slightly tighter hero so the About heading still peeks in on the first screen */
+@media (min-width: 761px) and (max-height: 760px) {
+  .hero { padding-top: 32px; padding-bottom: 40px; }
+  .hero__cta { margin: 26px 0 22px; }
+}
+/* Portrait tablets: tighter link spacing so the centered links don't crowd the name in the top bar */
+@media (min-width: 761px) and (max-width: 900px) {
+  .nav__links { gap: 4px; }
+  .nav__links a { padding: 6px 10px; }
+}
 @media (max-width: 760px) {
   .container { padding: 0 16px; }
   .section { padding: 32px 20px; }
-  .hero { padding: 32px 20px 100px; }
+  .footer__inner { padding: 0 21px; }
+  /* A more compact hero on phones so About still peeks in on small screens */
+  .hero { margin-top: 84px; padding: 28px 20px 32px; }
+  .hero__lead { margin-top: 16px; font-size: 1.03rem; line-height: 1.7; }
+  .about__text p, .contact__lead { font-size: 1.04rem; }
+  .timeline__points li { font-size: 1rem; }
+  .hero__cta { margin: 24px 0 18px; gap: 10px; }
+  .hero .btn { padding: 11px 15px; font-size: 0.88rem; }
+  .hero .socials { gap: 8px; }
+  .hero .social-btn { padding: 8px 10px; gap: 6px; font-size: 0.86rem; }
+  /* The links move into the drop-down menu, so the bar goes back to just logo on the left, buttons on the right */
+  .nav__inner { display: flex; justify-content: space-between; }
   .nav__burger { display: flex; }
   .nav__links {
     position: fixed; top: 76px; left: 16px; right: 16px;
@@ -448,9 +559,20 @@ img { max-width: 100%; display: block; }
   .nav__links a:first-child { border-top: none; }
 
   .about { grid-template-columns: 1fr; }
-  .about__photo { max-width: 220px; grid-row: 1; }
+  .about__photo { width: 100%; max-width: 220px; margin: 0 auto; grid-row: 1; }
   .projects { grid-template-columns: 1fr; }
   .contact__form { grid-template-columns: 1fr; }
+}
+
+/* The narrowest phones: just enough smaller that the hero buttons still fit two to a row */
+/* Only the oldest, tiniest phones lack room in the top bar for the name next to the menu buttons */
+@media (max-width: 340px) {
+  .nav__name { display: none; }
+}
+@media (max-width: 380px) {
+  .hero .btn { padding: 10px 12px; font-size: 0.85rem; }
+  .hero .social-btn { padding: 7px 8px; font-size: 0.82rem; }
+  .hero .social-btn svg { width: 16px; height: 16px; }
 }
 
 /* ============ HONEY GOURAMI ============ */
@@ -491,20 +613,49 @@ img { max-width: 100%; display: block; }
   background: var(--bg-elev); border-color: var(--border);
   animation-duration: 2.2s;
 }
+/* Holds fully visible for a few seconds so there's time to read it, then drifts up and fades */
+.gourami-bubble--linger { animation: gourami-bubble-linger 5.5s ease-out forwards; }
+@keyframes gourami-bubble-linger {
+  0% { opacity: 0; transform: translateY(0) scale(0.6); }
+  8% { opacity: 1; transform: translateY(-6px) scale(1); }
+  60% { opacity: 1; transform: translateY(-14px) scale(1); }
+  100% { opacity: 0; transform: translateY(-46px) scale(1); }
+}
 @keyframes gourami-bubble {
   0% { opacity: 0; transform: translateY(0) scale(0.6); }
   15% { opacity: 1; }
   100% { opacity: 0; transform: translateY(-46px) scale(1); }
 }
 
+html.can-feed { cursor: pointer; }
+.gourami-pellet {
+  position: fixed; top: 0; left: 0; z-index: -1; pointer-events: none;
+  width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #d9924e, #8a4a1c);
+  will-change: transform, opacity;
+  animation: gourami-pellet-in 0.3s ease-out;
+}
+@keyframes gourami-pellet-in { from { scale: 0; } }
+
 @media (max-width: 760px) {
   .gourami { width: 80px; height: 51px; }
 }
-/* Narrow windows (no side margins): chills beside the hero badge and scrolls away with it. It sits in front of the hero's
+/* Narrow windows (no side margins): chills beside the hero social buttons and scrolls away with it. It sits in front of the hero's
    glass (which would otherwise hide it), along with its bubbles */
 .gourami.is-hero { position: absolute; z-index: 1; }
+/* A quiet hint in the corner of the hero that the side margins can be clicked to feed the fish (desktop only) */
+.feed-hint {
+  position: absolute; right: 40px; bottom: 28px;
+  font: 0.78rem var(--mono); color: var(--text);
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transition: opacity 0.8s ease, visibility 0s 0.8s;
+}
+.feed-hint span { color: var(--accent); }
+.feed-hint.is-shown { opacity: 0.55; visibility: visible; transition: opacity 0.8s ease; }
+/* Swimming out of the hero to the margins at the start: stays in front of the hero's glass until it gets there */
+.gourami.is-surfacing { z-index: 1; }
 .gourami.is-hero ~ .gourami-bubble { z-index: 1; }
 @media (prefers-reduced-motion: reduce) {
   .gourami__tail, .gourami__pec, .gourami__feelers { animation: none; }
 }
-@media print { .gourami, .gourami-bubble { display: none; } }
+@media print { .gourami, .gourami-bubble, .gourami-pellet { display: none; } }

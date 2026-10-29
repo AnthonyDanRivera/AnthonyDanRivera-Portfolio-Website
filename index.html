@@ -3,18 +3,53 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Anthony Daniel Rivera | Web Developer &amp; Operations Planner</title>
-  <meta name="description" content="Anthony Daniel Rivera, freelance web developer and operations planner. I build websites for businesses and plan the logistics that keep operations running." />
+  <title>Anthony Daniel Rivera | Freelance Web Developer</title>
+  <meta name="description" content="Anthony Daniel Rivera is a freelance web developer who builds fast, clean websites for businesses." />
+  <link rel="canonical" href="https://anthonydanrivera.com/" />
+
+  <link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png" />
+  <link rel="icon" href="assets/favicon-192.png" sizes="192x192" type="image/png" />
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+  <meta name="theme-color" content="#0891b2" />
+
+  <!-- Link previews when the site is shared (LinkedIn, iMessage, Slack, email...) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://anthonydanrivera.com/" />
+  <meta property="og:title" content="Anthony Daniel Rivera | Freelance Web Developer" />
+  <meta property="og:description" content="Anthony Daniel Rivera is a freelance web developer who builds fast, clean websites for businesses." />
+  <meta property="og:image" content="https://anthonydanrivera.com/assets/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="hey, i'm anthony rivera. Freelance Web Developer" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- Helps search engines show who this site belongs to -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Anthony Daniel Rivera",
+    "url": "https://anthonydanrivera.com/",
+    "jobTitle": "Freelance Web Developer",
+    "email": "mailto:anthonydanrivera@gmail.com",
+    "image": "https://anthonydanrivera.com/assets/og-image.png",
+    "alumniOf": "New Jersey City University",
+    "sameAs": [
+      "https://www.linkedin.com/in/anthonydanrivera",
+      "https://github.com/anthonydanrivera"
+    ]
+  }
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400..700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
   <!-- ============ NAV ============ -->
   <header class="nav" id="nav">
     <div class="container nav__inner">
-      <a href="#top" class="nav__logo">{<span>AR</span>}</a>
+      <a href="#top" class="nav__logo"><span class="nav__mark">{<span>AR</span>}</span><span class="nav__name">anthony rivera</span></a>
 
       <nav class="nav__links" id="navLinks">
         <a href="#about">About</a>
@@ -38,15 +73,12 @@
   <main id="top">
     <!-- ============ HERO ============ -->
     <section class="hero container">
-      <div class="badge reveal"><span class="badge__dot"></span>Open to new opportunities</div>
       <h1 class="hero__title reveal">
-        Hey there! I'm <span class="gradient-text">Anthony Rivera</span>.
+        hey, i'm <span class="gradient-text">anthony</span>.<span class="cursor" aria-hidden="true"></span>
       </h1>
-      <p class="hero__role reveal">
-        <span class="mono">&gt;</span> <span id="typed"></span><span class="cursor">|</span>
-      </p>
       <p class="hero__lead reveal">
-        I build websites for businesses and plan the logistics that keep operations running.
+        Freelance web developer in New Jersey, building fast, clean websites backed by years of
+        keeping real-world operations running.
       </p>
       <div class="hero__cta reveal">
         <a href="#projects" class="btn btn--primary">View my work</a>
@@ -66,9 +98,8 @@
           Email
         </a>
       </div>
-      <a href="#about" class="hero__scroll" aria-label="Scroll to About">
-        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
-      </a>
+      <!-- Shown on desktop once the fish is in the margins; fades away after the first feeding -->
+      <p class="feed-hint" aria-hidden="true">psst... click the water on the sides to drop a snack <span>&gt;&lt;&gt;</span></p>
     </section>
 
     <!-- ============ ABOUT ============ -->
@@ -77,54 +108,60 @@
       <div class="about">
         <div class="about__text reveal">
           <p>
-            Hey, I'm Anthony. During the day I plan bus operations, and on the side I build websites
-            as a <strong>freelance web developer</strong>.
+            I'm a freelance web developer who creates clean websites that help businesses get noticed online,
+            and personal portfolios for people who want to show off their work in a way that feels like them.
+          </p>
+          <p>What I work with:</p>
+          <ul class="tech-list">
+            <li>HTML &amp; CSS</li><li>JavaScript</li>
+            <li>Web design</li><li>Python</li>
+          </ul>
+          <p>
+            Alongside web development I'm an Assistant Operations Planner at Academy Bus, coordinating charter
+            work across 10 Northeast terminals for events such as the FIFA World Cup, the US Open and the NYC
+            Marathon. It has taught me to plan carefully, hit hard deadlines and stay calm under pressure, habits
+            I bring to every site I build.
           </p>
           <p>
-            I started at Academy Bus in 2022 on the dispatch desk. If a bus broke down or a driver didn't
-            show, it landed on us, and we had to fix it fast. That job taught me to stay calm when everything
-            is going sideways at once.
+            In my free time you'll find me lifting heavy at the gym, reading fiction or deep in a run of Slay the Spire 2.
+            I used to keep honey gouramis, which is why one swims around this site!
           </p>
           <p>
-            These days I'm an <strong>Assistant Operations Planner</strong> there. I figure out how much charter
-            work is coming and split it across 10 terminals in the Northeast, while keeping 100+ buses and
-            drivers within DOT rules. I've worked on the bus side of the <strong>FIFA World Cup</strong>, the
-            <strong>US Open</strong>, and the <strong>NYC Marathon</strong>. My team used to spend about an hour
-            a week chasing partner availability, so I built some Excel trackers and now it takes about ten minutes.
-          </p>
-          <p>
-            Building websites is the part I do for me. My first client was a local cleaning company, and
-            seeing a real business use something I made was a great feeling. If your business needs a site,
-            or the one you have is out of date, send me a message.
+            If your business needs a site or the one you have is out of date, <a class="accent" href="#contact">send me a message</a>.
           </p>
         </div>
         <div class="about__photo reveal">
           <!-- Replace with: <img src="assets/profile.jpg" alt="Anthony Rivera" /> -->
-          <div class="photo-placeholder">{<span>AR</span>}</div>
+          <div class="photo-placeholder">
+            {<span>AR</span>}
+            <!-- A tiny ASCII aquarium -->
+            <div class="tank" aria-hidden="true">
+              <span class="tank__fish tank__fish--gourami">&gt;&lt;(((&deg;&gt;</span>
+              <span class="tank__fish tank__fish--tetra">&lt;&gt;&lt;</span>
+              <span class="tank__bubble tank__bubble--a">o</span>
+              <span class="tank__bubble tank__bubble--b">&deg;</span>
+              <pre class="tank__plants">               (   (         (        )
+(              )   )         )        (    )
+)       )      ( ( (         ( (    ) )    (   ( (             (
+(    )  ( (    ) ) ) )    (  ) )    ( ( (  )   ) ) )     )  (  )
+)    (  ) )    ( ( ( (    )  ( (    ) ) )  (   ( ( (     (  )  (</pre>
+              <pre class="tank__gravel">,.'.,.'':::.,',.'.',..,.:':....,,''',.,...'...',.'.'..':,...:'::</pre>
+            </div>
+          </div>
         </div>
       </div>
-
-      <h3 class="subhead reveal">Development</h3>
-      <ul class="skills reveal">
-        <li>HTML</li><li>CSS</li><li>JavaScript</li><li>Python</li>
-        <li>SQL</li><li>AI Tools</li><li>Git</li><li>Linux</li>
-      </ul>
-
-      <h3 class="subhead reveal">Data &amp; Operations</h3>
-      <ul class="skills reveal">
-        <li>Excel</li><li>Power Query</li><li>Pivot Tables</li><li>VBA Macros</li>
-        <li>Saucon</li><li>Passio GO</li><li>DOT Hours-of-Service</li><li>FMCSA</li>
-      </ul>    </section>
+    </section>
 
     <!-- ============ EXPERIENCE ============ -->
     <section class="section container" id="experience">
       <h2 class="section__title reveal">Experience</h2>
       <ol class="timeline">
         <li class="timeline__item reveal">
-          <span class="timeline__date">2026 — Present · Remote</span>
+          <span class="timeline__date">Oct 2026 — Present · Remote</span>
           <h3>Freelance Web Developer · <span class="accent">Self-employed</span></h3>
           <ul class="timeline__points">
             <li>Commissioned to build the website for <a class="accent" href="https://erosprocleaning.com/" target="_blank" rel="noopener">Eros Pro Cleaning</a>, a local cleaning business.</li>
+            <li>Worked directly with the owner to gather requirements, present drafts, and turn feedback into revisions.</li>
             <li>Use AI-assisted development (Claude Code) to speed up building, debugging, and revising client sites.</li>
           </ul>
         </li>
@@ -132,8 +169,7 @@
           <span class="timeline__date">May 2025 — Present · Hoboken, NJ</span>
           <h3>Assistant Operations Planner · <span class="accent">Academy Bus</span></h3>
           <ul class="timeline__points">
-            <li>Forecast charter demand across a peak-season board of 3,000+ trips a month and distribute work across 10 Northeast terminals including MA, RI, CT, and NJ.</li>
-            <li>Built Excel trackers with Microsoft Copilot for partner availability and insurance status, cutting the weekly roundup from ~1 hour to ~10 minutes for ~5 staff.</li>
+            <li>Forecast charter demand across a peak-season board of 3,000+ trips a month and distribute work across 10 Northeast terminals including MA, NY, NJ, and CT.</li>
             <li>Coordinate terminal distribution and subcontracting for the FIFA World Cup, US Open, and TCS NYC Marathon.</li>
           </ul>
         </li>
@@ -145,19 +181,12 @@
             <li>Resolved 15+ service disruptions a week, coordinating crews and equipment by radio.</li>
           </ul>
         </li>
-        <li class="timeline__item reveal">
-          <span class="timeline__date">Jan 2022 — Sep 2022 · West New York, NJ</span>
-          <h3>Shift Lead · <span class="accent">Walgreens</span></h3>
-          <ul class="timeline__points">
-            <li>Opened and closed the store as key holder, supervised 4 associates, and ran the cash office.</li>
-          </ul>
-        </li>
       </ol>
 
       <h2 class="section__title reveal" id="education">Education</h2>
       <ol class="timeline">
         <li class="timeline__item reveal">
-          <span class="timeline__date">Graduated 2025 · Jersey City, NJ</span>
+          <span class="timeline__date">Jersey City, NJ · Graduated 2025</span>
           <h3>B.S. Computer Science · <span class="accent">New Jersey City University</span></h3>
         </li>
         <li class="timeline__item reveal">
@@ -172,32 +201,35 @@
       <h2 class="section__title reveal">Projects</h2>
 
       <div class="projects">
-        <article class="card reveal" data-category="web">
+        <article class="card reveal">
           <a class="card__thumb" href="https://erosprocleaning.com/" target="_blank" rel="noopener">
-            <img src="assets/eros-pro-cleaning.png" alt="Eros Pro Cleaning website homepage" loading="lazy" />
+            <img src="assets/eros-pro-cleaning.webp" alt="Eros Pro Cleaning website homepage" width="1440" height="810" loading="lazy" />
           </a>
           <div class="card__body">
             <span class="card__label">Client project</span>
             <h3>Eros Pro Cleaning</h3>
-            <p>A website for a local cleaning business, commissioned as a freelance project. It lays out the
+            <p>A website for a local cleaning business that I built as a freelance project. It lays out the
               services clearly and makes it easy for customers to get in touch.</p>
             <ul class="tags"><li>Client Work</li><li>Web Design</li><li>Responsive</li></ul>
             <div class="card__links">
-              <a href="https://erosprocleaning.com/" target="_blank" rel="noopener">Visit site ↗</a>
+              <a href="https://erosprocleaning.com/" target="_blank" rel="noopener">Visit site <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
             </div>
           </div>
         </article>
 
-        <article class="card reveal" data-category="tool">
-          <div class="card__thumb">
-            <img src="assets/partner-tracker.png" alt="Example spreadsheet tracking partner availability and insurance status with color-coded cells" loading="lazy" />
-          </div>
+        <article class="card reveal">
+          <a class="card__thumb" href="https://anthonydanrivera.com/" target="_blank" rel="noopener">
+            <img src="assets/portfolio-site.webp" alt="The homepage of this portfolio site, with the honey gourami swimming beside the hero" width="1440" height="810" loading="lazy" />
+          </a>
           <div class="card__body">
-            <span class="card__label">Internal tool · Academy Bus</span>
-            <h3>Partner Availability &amp; Insurance Tracker</h3>
-            <p>Excel tracker for charter partner availability and certificate-of-insurance status. It cut the
-              weekly availability roundup from ~1 hour to ~10 minutes.</p>
-            <ul class="tags"><li>Excel</li><li>Formulas</li><li>Conditional Formatting</li></ul>
+            <span class="card__label">Personal project</span>
+            <h3>This Portfolio</h3>
+            <p>The site you're on right now. An aquarium-themed portfolio with light and dark modes, an ASCII
+              fish tank and a honey gourami you can feed by clicking the margins.</p>
+            <ul class="tags"><li>Personal Site</li><li>Interactive</li><li>Dark Mode</li></ul>
+            <div class="card__links">
+              <a href="#top">You're already here! <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></a>
+            </div>
           </div>
         </article>
       </div>
@@ -207,7 +239,7 @@
     <section class="section container contact" id="contact">
       <h2 class="section__title reveal">Contact</h2>
       <p class="contact__lead reveal">
-        Need a website for your business, or have a role you think I'd be a good fit for?
+        Need a website for your business or a portfolio of your own, or have a role you think I'd be a good fit for?
         Send me a message at <a class="accent" href="mailto:anthonydanrivera@gmail.com">anthonydanrivera@gmail.com</a>
         or use the form below.
       </p>
@@ -234,17 +266,32 @@
         </p>
         <div class="field">
           <label for="name">Name</label>
-          <input id="name" name="name" type="text" required />
+          <input id="name" name="name" type="text" autocomplete="name" required />
         </div>
         <div class="field">
           <label for="email">Email</label>
-          <input id="email" name="email" type="email" required />
+          <input id="email" name="email" type="email" autocomplete="email" required />
+        </div>
+        <div class="field field--full">
+          <label for="topic">What can I help with? <span class="field__optional">(optional)</span></label>
+          <select id="topic" name="topic">
+            <option value="">Choose one</option>
+            <option>New website or redesign</option>
+            <option>Portfolio website</option>
+            <option>Job opportunity</option>
+            <option>Just want to connect</option>
+            <option>Something else</option>
+          </select>
         </div>
         <div class="field field--full">
           <label for="message">Message</label>
-          <textarea id="message" name="message" rows="5" required></textarea>
+          <textarea id="message" name="message" rows="5" required
+            placeholder="What's on your mind?"></textarea>
         </div>
-        <button class="btn btn--primary" type="submit">Send message</button>
+        <div class="form-actions">
+          <button class="btn btn--primary" type="submit">Send message</button>
+          <p class="form-reply">I usually respond within 1 business day.</p>
+        </div>
         <p class="form-note" id="formNote" role="status"></p>
       </form>
     </section>
@@ -252,7 +299,7 @@
 
   <footer class="footer">
     <div class="container footer__inner">
-      <p>© <span id="year"></span> Anthony Daniel Rivera. Built with HTML, CSS &amp; JavaScript.</p>
+      <p>© <span id="year"></span> Designed by Anthony Daniel Rivera. All rights reserved.</p>
       <a href="#top" class="mono">Back to top ↑</a>
     </div>
   </footer>
