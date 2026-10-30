@@ -468,6 +468,12 @@
     if (!reduceMotion) { last = performance.now(); frame = requestAnimationFrame(swim); }
   });
 
+  // Switching the site to dark mode spooks the fish a little
+  new MutationObserver(() => {
+    if (root.getAttribute("data-theme") !== "dark") return;
+    swimmers.forEach((f, index) => setTimeout(() => f.spawnBubble("spooky!"), index * 300));
+  }).observe(root, { attributes: true, attributeFilter: ["data-theme"] });
+
   const interactive = "a, button, input, textarea, select, label, .card, #nav";
   document.addEventListener("click", (event) => {
     if (event.target.closest(interactive)) return;

@@ -24,6 +24,12 @@
   --glow-2: rgba(14, 165, 233, 0.16);
   --ray: rgba(255, 255, 255, 0.8);
   --nav-hover: #ffffff;
+  /* A light Frutiger Aero touch: glossy highlights, a sky glow at the top and big soft bubbles drifting up */
+  --gloss: rgba(255, 255, 255, 0.55);
+  --sky-glow: rgba(255, 255, 255, 0.75);
+  --bubble-edge: rgba(255, 255, 255, 0.75);
+  --bubble-shine: rgba(255, 255, 255, 0.9);
+  --bubble-tint: rgba(125, 211, 252, 0.12);
 }
 
 /* Dark: slate gray and blue */
@@ -46,6 +52,11 @@
   --glow-2: rgba(56, 189, 248, 0.12);
   --ray: rgba(165, 243, 252, 0.09);
   --nav-hover: rgba(255, 255, 255, 0.12);
+  --gloss: rgba(255, 255, 255, 0.07);
+  --sky-glow: rgba(103, 232, 249, 0.08);
+  --bubble-edge: rgba(165, 243, 252, 0.2);
+  --bubble-shine: rgba(165, 243, 252, 0.35);
+  --bubble-tint: rgba(34, 211, 238, 0.05);
 }
 
 /* ============ BASE ============ */
@@ -56,6 +67,7 @@ html { scroll-behavior: smooth; scroll-padding-top: 80px; }
 body {
   font-family: var(--font);
   background:
+    radial-gradient(ellipse 80% 40% at 50% -6%, var(--sky-glow), transparent 70%),
     radial-gradient(circle at 12% 18%, var(--glow-1), transparent 40%),
     radial-gradient(circle at 88% 55%, var(--glow-2), transparent 45%),
     radial-gradient(circle at 25% 92%, var(--glow-2), transparent 40%),
@@ -92,6 +104,29 @@ body::before {
 @keyframes sway {
   from { transform: skewX(-5deg); opacity: 0.75; }
   to { transform: skewX(5deg); opacity: 1; }
+}
+
+/* Big, faint bubbles drifting up behind everything (the fish included), blurred further by the glass boxes */
+.ambient-bubbles { position: fixed; inset: 0; z-index: -2; overflow: hidden; pointer-events: none; }
+.ambient-bubble {
+  position: absolute; bottom: -100px;
+  width: var(--size); height: var(--size); left: var(--x);
+  border-radius: 50%;
+  border: 1px solid var(--bubble-edge);
+  background:
+    radial-gradient(circle at 32% 28%, var(--bubble-shine) 0 7%, transparent 22%),
+    radial-gradient(circle at 50% 50%, transparent 55%, var(--bubble-tint) 100%);
+  box-shadow: inset -3px -5px 10px var(--bubble-tint);
+  opacity: 0.7;
+  animation: ambient-rise var(--time) linear var(--delay) infinite;
+}
+@keyframes ambient-rise {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(18px, -60vh); }
+  100% { transform: translate(-6px, calc(-100vh - 200px)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ambient-bubbles { display: none; }
 }
 
 a { color: inherit; text-decoration: none; }
@@ -134,7 +169,7 @@ img { max-width: 100%; display: block; }
   padding: 0 9px;
   border: 1px solid var(--glass-border);
   border-radius: 999px;
-  background: var(--glass);
+  background: linear-gradient(to bottom, var(--gloss), transparent 60%), var(--glass);
   box-shadow: var(--glass-shadow);
   -webkit-backdrop-filter: blur(16px) saturate(160%);
   backdrop-filter: blur(16px) saturate(160%);
@@ -166,8 +201,6 @@ img { max-width: 100%; display: block; }
 /* No outlines on the nav links or buttons; whichever one the mouse is over lights up white */
 .icon-btn, .nav__links a { transition: color 0.2s, background 0.2s; }
 .icon-btn:hover, .nav__links a:hover { background: var(--nav-hover); color: var(--accent); }
-[data-theme="dark"] .icon-moon,
-[data-theme="light"] .icon-sun { display: none; }
 
 .nav__burger { display: none; flex-direction: column; align-items: center; justify-content: center; gap: 5px; }
 .nav__burger span { display: block; width: 16px; height: 2px; background: currentColor; transition: transform 0.25s; }
@@ -180,10 +213,10 @@ img { max-width: 100%; display: block; }
   position: relative;
   width: calc(100% - 32px);
   /* Short enough that the top of the About box peeks in at the bottom of the first screen */
-  min-height: calc(100vh - 320px);
-  min-height: calc(100svh - 320px);
-  margin: 100px auto 0;
-  padding: 48px 40px 64px;
+  min-height: calc(100vh - 340px);
+  min-height: calc(100svh - 340px);
+  margin: 120px auto 0;
+  padding: 28px 40px 64px;
   display: flex; flex-direction: column; justify-content: center;
   border-radius: var(--radius);
   isolation: isolate;
@@ -193,7 +226,7 @@ img { max-width: 100%; display: block; }
 .hero::after {
   content: ""; position: absolute; inset: 0; z-index: -1;
   border-radius: inherit;
-  background: var(--glass);
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--gloss) 50%, transparent), transparent 120px), var(--glass);
   -webkit-backdrop-filter: blur(16px) saturate(160%);
   backdrop-filter: blur(16px) saturate(160%);
   -webkit-mask-image: linear-gradient(to bottom, #000 15%, transparent 85%);
@@ -209,41 +242,6 @@ img { max-width: 100%; display: block; }
   mask-image: linear-gradient(to bottom, #000 15%, transparent 85%);
   pointer-events: none;
 }
-/* Availability pill above the name, in the same frosted glass as the buttons, with a softly pulsing dot */
-.badge {
-  display: inline-flex; align-items: center; gap: 8px;
-  align-self: flex-start;
-  margin-bottom: 22px;
-  padding: 6px 14px;
-  border: 1px solid var(--glass-border);
-  border-radius: 999px;
-  background-color: color-mix(in srgb, var(--bg) 60%, transparent);
-  color: var(--muted);
-  font: 500 0.8rem var(--mono);
-  transition: color 0.2s, border-color 0.2s;
-}
-/* It links to the contact form: on hover the border turns aqua and a small arrow slides in */
-.badge:hover { color: var(--text); border-color: var(--accent); }
-.badge__arrow {
-  margin-left: -8px; /* cancels the flex gap while the arrow is hidden */
-  max-width: 0; overflow: hidden;
-  color: var(--accent);
-  opacity: 0;
-  transition: max-width 0.25s ease, margin-left 0.25s ease, opacity 0.2s;
-}
-.badge:hover .badge__arrow, .badge:focus-visible .badge__arrow { margin-left: 0; max-width: 1em; opacity: 1; }
-.badge__dot {
-  width: 8px; height: 8px; border-radius: 50%;
-  background: #22c55e;
-  animation: badge-pulse 2s infinite;
-}
-@keyframes badge-pulse {
-  0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.55); }
-  70%, 100% { box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .badge__dot { animation: none; }
-}
 .hero__title { font-size: clamp(2.4rem, 6vw, 4.2rem); line-height: 1.1; font-weight: 700; letter-spacing: -0.03em; }
 /* A blinking terminal-style cursor right after the name */
 .cursor {
@@ -253,7 +251,7 @@ img { max-width: 100%; display: block; }
   animation: blink 1s steps(1) infinite;
 }
 @keyframes blink { 50% { opacity: 0; } }
-.hero__lead { max-width: 600px; margin-top: 22px; color: var(--text); font-size: 1.2rem; line-height: 1.75; }
+.hero__lead { max-width: 820px; text-wrap: pretty; margin-top: 22px; color: var(--text); font-size: 1.2rem; line-height: 1.75; }
 .hero__cta { display: flex; flex-wrap: wrap; gap: 12px; margin: 34px 0 30px; }
 
 .btn {
@@ -263,23 +261,26 @@ img { max-width: 100%; display: block; }
   font: 600 0.92rem var(--font);
   cursor: pointer;
   border: 1px solid transparent;
-  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s, background 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s, background 0.2s, color 0.2s;
 }
 .btn:hover { transform: translateY(-2px); }
-/* Solid aqua with a soft glassy sheen along the top, so it stays the main call to action */
-.btn--primary {
-  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 82%, #fff), var(--accent));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
-  color: #fff;
-}
-.btn--primary:hover { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 8px 24px -8px var(--accent); }
-/* The secondary buttons are frosted aquarium glass, like the form fields */
+/* The buttons are frosted aquarium glass, like the form fields */
 .btn--ghost, .social-btn {
   border: 1px solid var(--glass-border);
   background-color: color-mix(in srgb, var(--bg) 60%, transparent);
+  background-image: linear-gradient(to bottom, var(--gloss), transparent 55%);
   box-shadow: inset 0 1px 2px color-mix(in srgb, var(--accent) 10%, transparent);
 }
-.btn--ghost:hover { border-color: var(--accent); }
+/* The main actions (View my work, Send message) start out aqua, with the same glass edge and gloss;
+   on hover they turn into the same solid aqua as every other button */
+.btn--primary {
+  border-color: color-mix(in srgb, var(--accent) 70%, #fff);
+  background-color: var(--accent);
+  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.28), transparent 55%);
+  color: #fff;
+}
+/* Fills aqua on hover, like the social buttons below it */
+.btn--ghost:hover { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 8px 20px -10px var(--accent); }
 
 .socials { display: flex; flex-wrap: wrap; gap: 10px; }
 .social-btn {
@@ -300,6 +301,11 @@ img { max-width: 100%; display: block; }
   box-shadow: 0 8px 20px -10px var(--accent);
 }
 .social-btn:hover svg { color: #fff; }
+/* Dark mode's aqua is brighter, so text and icons on it go dark navy instead of white to stay readable */
+[data-theme="dark"] .btn--primary,
+[data-theme="dark"] .btn--ghost:hover,
+[data-theme="dark"] .social-btn:hover,
+[data-theme="dark"] .social-btn:hover svg { color: var(--bg); }
 .contact__socials { margin-bottom: 28px; }
 
 /* ============ SECTIONS ============ */
@@ -310,7 +316,8 @@ img { max-width: 100%; display: block; }
   padding: 48px 40px;
   border: 1px solid var(--glass-border);
   border-radius: var(--radius);
-  background: var(--glass);
+  /* A faint gloss along the top edge, like light catching the glass */
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--gloss) 50%, transparent), transparent 120px), var(--glass);
   box-shadow: var(--glass-shadow);
   -webkit-backdrop-filter: blur(16px) saturate(160%);
   backdrop-filter: blur(16px) saturate(160%);
@@ -329,6 +336,8 @@ img { max-width: 100%; display: block; }
 .about { display: grid; grid-template-columns: 1.6fr 1fr; gap: 48px; align-items: start; }
 /* Reading text is a little larger with roomier lines, for a lighter, airier feel */
 .about__text p { color: var(--text); margin-bottom: 18px; font-size: 1.1rem; line-height: 1.8; }
+/* A few key phrases stand out for anyone skimming, without shouting */
+.about__text strong { font-weight: 600; }
 .about__photo img,
 .photo-placeholder {
   width: 100%; aspect-ratio: 1; border-radius: var(--radius);
@@ -552,7 +561,7 @@ img { max-width: 100%; display: block; }
 /* ============ RESPONSIVE ============ */
 /* Short laptop screens: a slightly tighter hero so the About heading still peeks in on the first screen */
 @media (min-width: 761px) and (max-height: 760px) {
-  .hero { padding-top: 32px; padding-bottom: 40px; }
+  .hero { padding-top: 12px; padding-bottom: 40px; }
   .hero__cta { margin: 26px 0 22px; }
 }
 /* Portrait tablets: tighter link spacing so the centered links don't crowd the name in the top bar */
@@ -655,6 +664,7 @@ img { max-width: 100%; display: block; }
   background: var(--bg-elev); border-color: var(--border);
   animation-duration: 2.2s;
 }
+[data-theme="dark"] .gourami-bubble--hi { color: #fff; }
 /* Holds fully visible for a few seconds so there's time to read it, then drifts up and fades */
 .gourami-bubble--linger { animation: gourami-bubble-linger 5.5s ease-out forwards; }
 @keyframes gourami-bubble-linger {

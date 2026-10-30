@@ -49,7 +49,9 @@ function aquarium({ width = 1920, height = 900, reduced = false, seed = 7 } = {}
       },
     };
   });
-  const root = { classList: classes() };
+  const attributes = {};
+  const root = { classList: classes(), getAttribute: (name) => attributes[name] };
+  const observers = [];
   const hint = { classList: classes() };
   const rect = () => ({ left: (win.innerWidth - Math.min(1000, win.innerWidth - 32)) / 2,
     right: (win.innerWidth + Math.min(1000, win.innerWidth - 32)) / 2,
@@ -76,6 +78,7 @@ function aquarium({ width = 1920, height = 900, reduced = false, seed = 7 } = {}
     requestAnimationFrame(fn) { frames.set(++nextId, fn); return nextId; },
     cancelAnimationFrame: (id) => frames.delete(id),
     setTimeout(fn, duration) { timers.set(++nextId, { fn, due: now + duration }); return nextId; },
+    MutationObserver: class { constructor(fn) { observers.push(fn); } observe() {} },
   });
   const step = (ms = 1000 / 60) => {
     now += ms;
@@ -95,6 +98,7 @@ function aquarium({ width = 1920, height = 900, reduced = false, seed = 7 } = {}
     get frames() { return frames.size; },
     resize(width, height = win.innerHeight) { win.innerWidth = width; win.innerHeight = height; windowEvents.get("resize")(); },
     reduce(value) { preference.matches = value; preference.onChange({ matches: value }); },
+    theme(value) { attributes["data-theme"] = value; observers.forEach((fn) => fn([])); },
     tick(duration) { const end = now + duration; while (now < end) step(); },
   };
 }
@@ -248,4 +252,16 @@ test("without side margins the fish roam the hero all the way to the edges of th
     assert.ok(right > hero.right - 40, `reaches the right edge at ${width}px`);
     if (width === 375) assert.ok(left < hero.left + 40, "reaches the left edge on a phone");
   }
+});
+
+test("both fish say spooky! when the site switches to dark mode, and nothing when it switches back", () => {
+  const tank = aquarium({ width: 375 });
+  const spooky = () => tank.children.filter((el) => el.textContent === "spooky!").length;
+  tank.theme("dark");
+  tank.tick(400);
+  assert.equal(spooky(), 2);
+  tank.tick(3000);
+  tank.theme("light");
+  tank.tick(1000);
+  assert.equal(spooky(), 0);
 });

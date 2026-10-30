@@ -94,7 +94,7 @@ form.addEventListener("submit", async (e) => {
 
   if (data.get("bot-field")) {
     // Pretend it worked so the bot moves on
-    formNote.textContent = "Thanks! Your message has been sent.";
+    formNote.textContent = "Thanks! I got your message.";
     form.reset();
     return;
   }
@@ -110,7 +110,7 @@ form.addEventListener("submit", async (e) => {
       body: new URLSearchParams(data).toString(),
     });
     if (!res.ok) throw new Error(res.status);
-    formNote.textContent = "Thanks! Your message has been sent.";
+    formNote.textContent = "Thanks! I got your message.";
     form.reset();
   } catch {
     openEmailApp(data);
