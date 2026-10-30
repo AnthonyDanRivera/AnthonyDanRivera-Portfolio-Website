@@ -216,7 +216,7 @@ img { max-width: 100%; display: block; }
   min-height: calc(100vh - 340px);
   min-height: calc(100svh - 340px);
   margin: 120px auto 0;
-  padding: 28px 40px 64px;
+  padding: 40px 40px 64px;
   display: flex; flex-direction: column; justify-content: center;
   border-radius: var(--radius);
   isolation: isolate;
@@ -561,7 +561,7 @@ img { max-width: 100%; display: block; }
 /* ============ RESPONSIVE ============ */
 /* Short laptop screens: a slightly tighter hero so the About heading still peeks in on the first screen */
 @media (min-width: 761px) and (max-height: 760px) {
-  .hero { padding-top: 12px; padding-bottom: 40px; }
+  .hero { padding-top: 24px; padding-bottom: 40px; }
   .hero__cta { margin: 26px 0 22px; }
 }
 /* Portrait tablets: tighter link spacing so the centered links don't crowd the name in the top bar */
