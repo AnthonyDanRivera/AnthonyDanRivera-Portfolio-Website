@@ -37,7 +37,7 @@ function aquarium({ width = 1920, height = 900, reduced = false, seed = 7 } = {}
     }));
     return {
       style: {}, classList: classes(male ? "gourami gourami--male" : "gourami"), paths,
-      get offsetWidth() { return win.innerWidth <= 760 ? male ? 76 : 80 : male ? 114 : 120; },
+      get offsetWidth() { return win.innerWidth <= 760 ? male ? 71 : 80 : male ? 106 : 120; },
       get offsetHeight() { return win.innerWidth <= 760 ? male ? 53.76 : 51 : male ? 79.36 : 77; },
       querySelectorAll: () => paths,
       addEventListener(name, fn) { this[name] = fn; },
@@ -53,12 +53,18 @@ function aquarium({ width = 1920, height = 900, reduced = false, seed = 7 } = {}
   const root = { classList: classes(), getAttribute: (name) => attributes[name] };
   const observers = [];
   const hint = { classList: classes() };
-  const rect = () => ({ left: (win.innerWidth - Math.min(1000, win.innerWidth - 32)) / 2,
-    right: (win.innerWidth + Math.min(1000, win.innerWidth - 32)) / 2,
-    width: Math.min(1000, win.innerWidth - 32), top: 100 - win.scrollY, bottom: 600 - win.scrollY });
+  const rect = () => ({ left: (win.innerWidth - Math.min(1120, win.innerWidth - 32)) / 2,
+    right: (win.innerWidth + Math.min(1120, win.innerWidth - 32)) / 2,
+    width: Math.min(1120, win.innerWidth - 32), top: 100 - win.scrollY, bottom: 600 - win.scrollY });
   const perch = { getBoundingClientRect: () => ({ right: rect().left + Math.min(325, rect().width - 32),
     top: 455 - win.scrollY, height: 40 }) };
-  const hero = { getBoundingClientRect: rect, querySelector: () => perch };
+  const lead = { getBoundingClientRect: () => ({ top: 300 - win.scrollY, bottom: 380 - win.scrollY }) };
+  // The hero's buttons: View my work, then the row of social links
+  const button = (left, right, top, bottom) => ({ getBoundingClientRect: () => ({ left: rect().left + left,
+    right: rect().left + right, top: top - win.scrollY, bottom: bottom - win.scrollY }) });
+  const buttons = [button(20, 140, 400, 444), button(20, 120, 455, 495), button(128, 220, 455, 495), button(228, 325, 455, 495)];
+  const hero = { getBoundingClientRect: rect, querySelector: (selector) => selector === ".hero__lead" ? lead : perch,
+    querySelectorAll: () => buttons };
   const document = {
     documentElement: root,
     querySelectorAll: () => fish,
@@ -146,13 +152,16 @@ test("both fish fit, stay separate, and touch feelers on a phone", () => {
   tank.until(() => touching(tank), 65000);
 });
 
-test("narrow desktop margins use a staggered greeting without overlapping bodies", () => {
-  const tank = aquarium({ width: 1280 });
-  tank.until(() => touching(tank));
-  const [a, b] = tank.fish.map((f) => f.getBoundingClientRect());
-  // Main body bounds in each SVG, excluding the trailing feelers.
-  assert.ok(a.top + 88 / 128 * tank.fish[0].offsetHeight < b.top + 23 / 128 * tank.fish[1].offsetHeight);
-  for (const r of [a, b]) assert.ok(r.right <= 156 || r.left >= 1124);
+test("narrower desktop windows keep the fish in the hero, with no feeding", () => {
+  for (const width of [1440, 1600, 1880]) {
+    const tank = aquarium({ width });
+    tank.tick(8000);
+    assert.ok(tank.fish.every((f) => f.classList.contains("is-hero")), `fish stay in the hero at ${width}px`);
+    tank.click(40, 300);
+    assert.equal(tank.children.filter((el) => el.className === "gourami-pellet").length, 0, `no food at ${width}px`);
+  }
+  const tank = aquarium({ width: 1920 });
+  tank.until(() => tank.fish.every((f) => !f.classList.contains("is-hero")), 8000);
 });
 
 test("food interrupts a meeting, is shared, and is eaten only once", () => {
@@ -214,7 +223,8 @@ test("scrolling, resizing during an encounter, and repeated mode changes recover
   assert.ok(tank.fish.every((f) => f.classList.contains("is-hero")));
   tank.win.scrollY = 0;
   tank.resize(1920);
-  tank.until(() => touching(tank));
+  // In the margins they only meet once they end up on the same side, which can take a while
+  tank.until(() => touching(tank), 600000);
   tank.resize(320);
   for (const f of tank.fish) {
     const r = f.getBoundingClientRect();
@@ -238,7 +248,7 @@ test("address-bar resizes on a phone keep a greeting going and do not restart th
 test("without side margins the fish roam the hero all the way to the edges of the box", () => {
   for (const width of [375, 1000]) {
     const tank = aquarium({ width });
-    const hero = { left: (width - Math.min(1000, width - 32)) / 2, right: (width + Math.min(1000, width - 32)) / 2 };
+    const hero = { left: (width - Math.min(1120, width - 32)) / 2, right: (width + Math.min(1120, width - 32)) / 2 };
     let left = Infinity, right = -Infinity;
     for (let t = 0; t < 240000; t += 250) {
       tank.tick(250);
@@ -264,4 +274,79 @@ test("both fish say spooky! when the site switches to dark mode, and nothing whe
   tank.theme("light");
   tank.tick(1000);
   assert.equal(spooky(), 0);
+});
+
+
+test("a pellet dropped right by a fish's tail gets eaten instead of leaving the fish stuck", () => {
+  for (const seed of [3, 7, 21, 42, 99]) {
+    const tank = aquarium({ seed });
+    // Wait for a fish swimming in a margin with open water just behind its tail (where a pellet can be dropped)
+    const tail = (f) => { const r = f.getBoundingClientRect(); return f.classList.contains("is-left") ? r.right + 6 : r.left - 6; };
+    let fish;
+    tank.until(() => {
+      fish = tank.fish.find((f) => {
+        const r = f.getBoundingClientRect();
+        const x = tail(f);
+        return !f.classList.contains("is-social") && !f.classList.contains("is-hero") && r.top > 140 && r.bottom < 800 &&
+          ((x > 20 && x < 410) || (x > 1510 && x < 1900)) &&
+          // and the other fish isn't right there, so the click drops food rather than greeting it
+          tank.fish.every((o) => { const q = o.getBoundingClientRect(); return o === f || x < q.left - 30 || x > q.right + 30; });
+      });
+      return fish;
+    });
+    const r = fish.getBoundingClientRect();
+    const tailX = tail(fish);
+    tank.click(tailX, r.top + (r.bottom - r.top) * 0.45);
+    assert.equal(tank.children.filter((el) => el.className === "gourami-pellet").length, 1, `pellet dropped (seed ${seed})`);
+    tank.until(() => tank.children.some((el) => el.textContent === "yum!"), 6000);
+  }
+});
+
+test("fish leaving the hero go after food right away instead of finishing their swim first", () => {
+  for (const seed of [3, 7, 21]) {
+    const tank = aquarium({ seed });
+    tank.until(() => tank.fish.some((f) => f.classList.contains("is-surfacing")), 6000);
+    const fish = tank.fish.find((f) => f.classList.contains("is-surfacing"));
+    const r = fish.getBoundingClientRect();
+    // Drop food in the right margin, a little ahead of where the fish is heading
+    tank.click(1700, Math.min(800, Math.max(150, r.top + 20)));
+    assert.equal(tank.children.filter((el) => el.className === "gourami-pellet").length, 1, `pellet dropped (seed ${seed})`);
+    // About 650px of open water away: swimming straight there takes roughly six seconds
+    tank.until(() => tank.children.some((el) => el.textContent === "yum!"), 8000);
+  }
+});
+
+test("on phones the fish roam up and down under the intro paragraph, never above it", () => {
+  const tank = aquarium({ width: 375 });
+  let top = Infinity, bottom = -Infinity;
+  for (let t = 0; t < 120000; t += 250) {
+    tank.tick(250);
+    for (const f of tank.fish) {
+      const r = f.getBoundingClientRect();
+      // (allowing for the gentle 3px bob as they swim)
+      assert.ok(r.top >= 380 + 8 - 3.5, `stays below the paragraph (${Math.round(r.top)})`);
+      top = Math.min(top, r.top);
+      bottom = Math.max(bottom, r.top);
+    }
+  }
+  assert.ok(bottom - top > 40, `swims up and down (${Math.round(bottom - top)}px of travel)`);
+});
+
+test("on phones the fish spend most of their time in open water rather than hidden behind the buttons", () => {
+  const tank = aquarium({ width: 375 });
+  const covered = (r) => {
+    let area = 0;
+    for (const [left, right, top, bottom] of [[20, 140, 400, 444], [20, 120, 455, 495], [128, 220, 455, 495], [228, 325, 455, 495]]) {
+      const x = Math.min(r.right, 16 + right) - Math.max(r.left, 16 + left);
+      const y = Math.min(r.bottom, bottom) - Math.max(r.top, top);
+      if (x > 0 && y > 0) area += x * y;
+    }
+    return area / ((r.right - r.left) * (r.bottom - r.top));
+  };
+  let hidden = 0, samples = 0;
+  for (let t = 0; t < 180000; t += 250) {
+    tank.tick(250);
+    for (const f of tank.fish) { samples++; if (covered(f.getBoundingClientRect()) > 0.5) hidden++; }
+  }
+  assert.ok(hidden / samples < 0.15, `mostly hidden ${Math.round(hidden / samples * 100)}% of the time`);
 });

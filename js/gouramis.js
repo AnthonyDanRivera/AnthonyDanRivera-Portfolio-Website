@@ -8,9 +8,11 @@
   let reduceMotion = motionPreference.matches;
   const rand = (min, max) => min + Math.random() * (max - min);
   const clamp = (value, min, max) => Math.min(Math.max(value, min), Math.max(min, max));
-  const contentWidth = 1000; // matches --maxw in style.css
+  const contentWidth = 1120; // matches --maxw in style.css
   const hero = document.querySelector(".hero");
   const perch = hero?.querySelector(".socials .social-btn:last-child");
+  const lead = hero?.querySelector(".hero__lead");
+  const buttons = hero ? [...hero.querySelectorAll(".hero__cta .btn, .hero .socials .social-btn")] : [];
   const feedHint = document.querySelector(".feed-hint");
   const swimmers = [];
   const pellets = [];
@@ -23,7 +25,10 @@
   let last = performance.now();
 
   const marginWidth = () => (window.innerWidth - contentWidth) / 2 + 16;
-  const fits = () => marginWidth() >= Math.max(...elements.map((el) => el.offsetWidth)) + 8;
+  // The fish only move out to the margins (where they can be fed) when there's plenty of open water there,
+  // about what a 1920px-wide window leaves; on anything narrower they stay in the hero
+  const minMargin = 400;
+  const fits = () => marginWidth() >= Math.max(minMargin, ...elements.map((el) => el.offsetWidth + 8));
   const getMode = () => fits() ? "sides" : perch ? "hero" : null;
   const canFeed = () => !reduceMotion && swimmers.some((f) => f.mode === "sides");
   const inMargin = (x, y) => (x < marginWidth() || x > window.innerWidth - marginWidth()) &&
@@ -35,22 +40,40 @@
   const measureHero = () => {
     const now = performance.now();
     if (!heroLayout || now - heroLayout.at > 250) {
-      heroLayout = { at: now, scrollY: window.scrollY, perch: perch.getBoundingClientRect(),
+      heroLayout = { at: now, scrollY: window.scrollY, perch: perch.getBoundingClientRect(), lead: lead?.getBoundingClientRect(),
+        buttons: buttons.map((el) => el.getBoundingClientRect()),
         hero: hero.getBoundingClientRect(), sizes: elements.map((el) => ({ w: el.offsetWidth, h: el.offsetHeight })) };
     }
     return heroLayout;
+  };
+
+  // How much of a fish at this spot (page coordinates) would be hidden behind the hero's buttons, from 0 to 1
+  const coveredByButtons = ({ x, y }, { w, h }) => {
+    const { buttons: rects, scrollY } = measureHero();
+    let area = 0;
+    for (const r of rects) {
+      const overlapX = Math.min(x + w, r.right) - Math.max(x, r.left);
+      const overlapY = Math.min(y + h, r.bottom + scrollY) - Math.max(y, r.top + scrollY);
+      if (overlapX > 0 && overlapY > 0) area += overlapX * overlapY;
+    }
+    return area / (w * h);
   };
 
   // Both fish share one stretch of open water in the hero and swim it all the way to the edge of the box,
   // a few pixels apart in depth so they can pass each other: beside the social links when there's room for
   // both, otherwise (phones) the full width of the hero just below the row of buttons.
   const heroBox = (index) => {
-    const { sizes, scrollY, perch: b, hero: h } = measureHero();
+    const { sizes, scrollY, perch: b, lead: l, hero: h } = measureHero();
     const total = sizes.reduce((sum, s) => sum + s.w, 0) + 12 * (sizes.length - 1);
-    const beside = h.right - 12 - (b.right + 12) >= total + 24;
-    const y = (beside ? b.top + b.height / 2 - sizes[index].h / 2 :
-      h.bottom - Math.max(...sizes.map((s) => s.h)) / 2 - 6) + scrollY + (index % 2 ? 6 : -6);
-    return { x: [beside ? b.right + 12 : h.left + 12, h.right - 12 - sizes[index].w], y: [y - 3, y + 3] };
+    const maxH = Math.max(...sizes.map((s) => s.h));
+    if (h.right - 12 - (b.right + 12) < total + 24) {
+      // Phones: the whole stretch of water under the intro paragraph, swimming behind the buttons
+      const bottom = h.bottom - maxH / 2 - 6 + scrollY;
+      const top = Math.min(bottom, (l ? l.bottom + 8 : h.bottom - maxH) + scrollY);
+      return { x: [h.left + 12, h.right - 12 - sizes[index].w], y: [top, bottom] };
+    }
+    const y = b.top + b.height / 2 - sizes[index].h / 2 + scrollY + (index % 2 ? 6 : -6);
+    return { x: [b.right + 12, h.right - 12 - sizes[index].w], y: [y - 3, y + 3] };
   };
 
   const removePellet = (p) => {
@@ -93,10 +116,24 @@
     let nextBubble = performance.now() + rand(4000, 8000);
     let leaveScrollY = 0;
     let social = null;
+    // The pellet being chased, and which way the fish will face to eat it. Decided once per pellet so the
+    // fish doesn't flip-flop when the food is near its tail.
+    let chase = null;
     let vel = { x: 0, y: 0 };
     const pickTarget = () => {
       const { x, y } = mode === "hero" ? heroBox(index) : { x: sideRange(side), y: yRange() };
-      return { x: rand(x[0], Math.max(x[0], x[1])), y: rand(y[0], y[1]) };
+      const spot = () => ({ x: rand(x[0], Math.max(x[0], x[1])), y: rand(y[0], y[1]) });
+      if (mode !== "hero") return spot();
+      // In the hero they can pass behind the buttons, but prefer to settle in open water: try a few spots and
+      // keep the first that's mostly clear (or the clearest one)
+      let best = null;
+      let bestCovered = Infinity;
+      for (let i = 0; i < 8 && bestCovered > 0.25; i++) {
+        const candidate = spot();
+        const covered = coveredByButtons(candidate, size());
+        if (covered < bestCovered) { best = candidate; bestCovered = covered; }
+      }
+      return best;
     };
     let pos = pickTarget();
     let target = pickTarget();
@@ -128,9 +165,13 @@
       setTimeout(() => b.remove(), linger ? 5600 : 2800);
     };
     const nearestFood = () => {
-      if (mode !== "sides" || phase === "enter" || phase === "leave") return null;
+      // Fish leaving the hero notice food straight away; fish swimming in from off screen once they're in view
+      if (mode !== "sides" || (phase === "enter" && (pos.x < 0 || pos.x > window.innerWidth - size().w))) return null;
+      // Once a fish has spotted a pellet it keeps after it, however far it has to swim
+      if (chase && pellets.includes(chase.pellet) && chase.pellet.side === side) return chase.pellet;
       let best = null;
-      let distance = 420;
+      // Usually only food nearby counts, but a fish on its way out of the hero is headed for that margin anyway
+      let distance = phase === "leave" ? Infinity : 420;
       for (const p of pellets) {
         if (p.side !== side) continue;
         const d = Math.hypot(p.x - pos.x - size().w / 2, p.y - pos.y - size().h * 0.45);
@@ -173,7 +214,7 @@
         return;
       }
       phase = null;
-      pausedUntil = now + (mode === "hero" ? rand(3000, 7000) : rand(1200, 3500));
+      pausedUntil = now + (mode === "hero" ? rand(1500, 4000) : rand(1200, 3500));
       if (mode === "sides" && Math.random() < 0.3) {
         phase = "exit";
         target = { x: side === "left" ? -size().w - 30 : window.innerWidth + 30, y: rand(...yRange()) };
@@ -208,11 +249,11 @@
       const food = nearestFood();
       if (food) {
         phase = null;
-        const left = food.x < pos.x + size().w / 2;
-        target = { x: clamp(food.x - size().w * (left ? 0.06 : 0.94), ...sideRange(side)),
+        if (chase?.pellet !== food) chase = { pellet: food, left: food.x < pos.x + size().w / 2 };
+        target = { x: clamp(food.x - size().w * (chase.left ? 0.06 : 0.94), ...sideRange(side)),
           y: Math.max(90, food.y - size().h * 0.45) };
         pausedUntil = 0;
-      }
+      } else chase = null;
       if (now > pausedUntil) {
         const dx = target.x - pos.x;
         const dy = target.y - pos.y;
@@ -227,7 +268,7 @@
         } else if (distance < 12 && !food) arrive(now);
         else if (distance > 0.1) {
           const cruise = phase === "leave" ? 110 : phase ? 55 : 38;
-          const speed = food ? Math.min(75, Math.max(30, distance * 1.2)) :
+          const speed = food ? Math.min(distance > 300 ? 110 : 75, Math.max(Math.min(30, distance * 2), distance * 1.2)) :
             Math.min(cruise, Math.max(phase === "leave" ? 40 : 0, distance * 0.6));
           const steer = 1 - Math.exp(-(food ? 3 : 1.8) * dt);
           vel.x += (dx / distance * speed - vel.x) * steer;
@@ -248,14 +289,24 @@
           vel.y += (dy === 0 ? index ? 1 : -1 : Math.sign(dy)) * 45 * dt;
         }
       }
+      const prevX = pos.x;
       pos.x += vel.x * dt;
       pos.y += vel.y * dt;
       if (!phase) {
         const bounds = mode === "hero" ? heroBox(index) : { x: sideRange(side), y: yRange() };
-        pos.x = clamp(pos.x, ...bounds.x);
+        const [minX, maxX] = bounds.x;
+        // A fish still outside its patch of water (crossing out of the hero, or back from the screen edge to chase
+        // food) swims in rather than jumping there; it just can't drift any further out
+        if (prevX >= minX && prevX <= Math.max(minX, maxX)) pos.x = clamp(pos.x, minX, maxX);
+        else pos.x = prevX < minX ? Math.max(pos.x, prevX) : Math.min(pos.x, prevX);
         pos.y = food ? clamp(pos.y, 90, window.innerHeight - size().h * 0.45 - 18) : clamp(pos.y, ...bounds.y);
       }
-      if (Math.abs(vel.x) > 4) el.classList.toggle("is-left", vel.x < 0);
+      // Close to the food it turns to face it, even while barely moving sideways
+      if (food && Math.hypot(target.x - pos.x, target.y - pos.y) < 40) el.classList.toggle("is-left", chase.left);
+      else if (Math.abs(vel.x) > 4) el.classList.toggle("is-left", vel.x < 0);
+      // Done crossing out of the hero (it went for food on the way): drop behind the page's glass
+      if (phase !== "leave" && mode === "sides" && el.classList.contains("is-surfacing") &&
+        pos.x >= sideRange(side)[0] && pos.x <= sideRange(side)[1]) el.classList.remove("is-surfacing");
       if (now > nextBubble) { spawnBubble(); nextBubble = now + rand(5000, 10000); }
       const tilt = clamp(vel.y * 0.3, -10, 10) * (vel.x < 0 ? -1 : 1);
       place(Math.sin(now / 700 + index * 2) * 3, tilt);
