@@ -76,6 +76,7 @@ document.querySelectorAll(".reveal").forEach((el, i) => {
 // Submits to Netlify Forms. The hidden "bot-field" is a honeypot: people never see it,
 // so if it has a value the sender is a bot and the message is dropped.
 // If the submission fails (e.g. viewing the site locally), fall back to the visitor's email app.
+// The Contact section is stored in a <template> for now, so there's no form and this does nothing until it's restored.
 const form = document.getElementById("contactForm");
 const formNote = document.getElementById("formNote");
 const YOUR_EMAIL = "anthonydanrivera@gmail.com";
@@ -88,7 +89,7 @@ const openEmailApp = (data) => {
   formNote.textContent = "Opening your email app…";
 };
 
-form.addEventListener("submit", async (e) => {
+form?.addEventListener("submit", async (e) => {
   e.preventDefault();
   const data = new FormData(form);
 
