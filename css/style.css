@@ -489,6 +489,7 @@ img { max-width: 100%; display: block; }
 
 /* ============ PROJECTS ============ */
 .projects { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+@media (min-width: 1000px) { .projects { grid-template-columns: repeat(3, 1fr); } }
 /* Frosted aquarium glass, like the buttons and form fields */
 .card {
   border: 1px solid var(--glass-border);
