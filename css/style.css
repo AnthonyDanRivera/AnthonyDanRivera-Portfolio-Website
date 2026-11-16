@@ -218,9 +218,10 @@ img { max-width: 100%; display: block; }
 .hero {
   position: relative;
   width: calc(100% - 32px);
-  /* Short enough that the top of the About box peeks in at the bottom of the first screen */
-  min-height: calc(100vh - 340px);
-  min-height: calc(100svh - 340px);
+  /* Short enough that the top of the About box peeks in at the bottom of the first screen, and capped so tall
+     windows (or zooming out) don't stretch it into a mostly empty box */
+  min-height: min(calc(100vh - 340px), 640px);
+  min-height: min(calc(100svh - 340px), 640px);
   margin: 120px auto 0;
   /* The same space above the name on every screen (phones get a shorter version below); any extra height goes
      under the buttons, where the fish swim, rather than above the name */
