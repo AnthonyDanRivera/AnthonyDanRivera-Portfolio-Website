@@ -10,7 +10,7 @@ My personal portfolio site: who I am, what I've built and how to reach me.
 
 - **About:** a short intro, the tools I work with and what I do outside of code.
 - **Projects:** client and personal work, starting with [Eros Pro Cleaning](https://erosprocleaning.com).
-- **Experience and education,** with a downloadable resume.
+- **Experience and education.**
 - **Light and dark mode,** saved between visits.
 - **An ASCII fish tank** with two honey gouramis. Click the water in the side margins to drop food and they swim over to eat it.
 

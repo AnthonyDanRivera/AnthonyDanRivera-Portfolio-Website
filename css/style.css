@@ -23,7 +23,6 @@
   --glow-1: rgba(45, 212, 191, 0.18);
   --glow-2: rgba(14, 165, 233, 0.16);
   --ray: rgba(255, 255, 255, 0.8);
-  --nav-hover: #ffffff;
   /* A light Frutiger Aero touch: glossy highlights, a sky glow at the top and big soft bubbles drifting up */
   --gloss: rgba(255, 255, 255, 0.55);
   --sky-glow: rgba(255, 255, 255, 0.75);
@@ -51,7 +50,6 @@
   --glow-1: rgba(45, 212, 191, 0.14);
   --glow-2: rgba(56, 189, 248, 0.12);
   --ray: rgba(165, 243, 252, 0.09);
-  --nav-hover: rgba(255, 255, 255, 0.12);
   --gloss: rgba(255, 255, 255, 0.07);
   --sky-glow: rgba(103, 232, 249, 0.08);
   --bubble-edge: rgba(165, 243, 252, 0.2);
@@ -190,8 +188,10 @@ img { max-width: 100%; display: block; }
 /* GitHub, LinkedIn and Email rows only appear in the phone menu */
 .nav__menu-link { display: none; }
 .nav__actions { grid-column: 3; justify-self: end; display: flex; align-items: center; gap: 4px; }
-/* The quick-link icons are aqua, matching the icons in the phone menu */
-.icon-btn.nav__quick { color: var(--accent); }
+/* The quick-link icons are black (white in dark mode), matching the icons in the phone menu */
+.icon-btn.nav__quick { color: #000; }
+[data-theme="dark"] .icon-btn.nav__quick { color: #fff; }
+.icon-btn.nav__quick:hover { color: var(--accent); }
 /* A thin line between the quick links and the theme toggle */
 .nav__divider { width: 1px; height: 20px; margin: 0 4px; background: var(--glass-border); }
 
@@ -205,8 +205,17 @@ img { max-width: 100%; display: block; }
   cursor: pointer;
 }
 /* No outlines on the nav links or buttons; whichever one the mouse is over lights up white */
-.icon-btn, .nav__links a { transition: color 0.2s, background 0.2s; }
-.icon-btn:hover, .nav__links a:hover { background: var(--nav-hover); color: var(--accent); }
+.icon-btn, .nav__links a { transition: color 0.2s, background-color 0.2s, box-shadow 0.2s; }
+/* Hovered or pressed, a nav button becomes a bubble of frosted glass like the buttons on the page.
+   The glass edge is an inset shadow rather than a border, so nothing shifts when it appears */
+.icon-btn:hover, .nav__links a:hover,
+.icon-btn:active, .nav__links a:active {
+  background-color: color-mix(in srgb, var(--bg) 45%, transparent);
+  background-image: linear-gradient(to bottom, var(--gloss), transparent 60%);
+  box-shadow: inset 0 0 0 1px var(--glass-border), inset 0 1px 2px color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+}
+.icon-btn:active, .nav__links a:active { background-color: color-mix(in srgb, var(--accent) 14%, transparent); }
 
 .nav__burger { display: none; flex-direction: column; align-items: center; justify-content: center; gap: 5px; }
 .nav__burger span { display: block; width: 16px; height: 2px; background: currentColor; transition: transform 0.25s; }
@@ -437,13 +446,6 @@ img { max-width: 100%; display: block; }
 
 
 /* ============ TIMELINE ============ */
-/* The resume button is the last stop on the Experience timeline: its fish sits level with the button,
-   and no bubble line trails after it */
-.timeline__item.timeline__item--resume::before { top: 9px; }
-.timeline__item.timeline__item--resume::after { display: none; }
-.timeline__item--resume .btn { gap: 8px; }
-.timeline__item--resume .btn svg { color: var(--accent); transition: color 0.2s; }
-.timeline__item--resume .btn:hover svg { color: currentColor; }
 /* A column of tiny bubbles down the left side, with a little ASCII fish marking each entry.
    Each entry draws its own stretch of bubbles starting just below its fish, so the line never runs through one */
 .timeline { padding-left: 30px; }
@@ -652,7 +654,8 @@ img { max-width: 100%; display: block; }
   .nav__links a { padding: 16px 20px; border-radius: 0; border-top: 1px solid var(--border); }
   .nav__links a:first-child { border-top: none; }
   .nav__links .nav__menu-link { display: flex; align-items: center; gap: 10px; }
-  .nav__menu-link svg { width: 18px; height: 18px; color: var(--accent); flex-shrink: 0; }
+  .nav__menu-link svg { width: 18px; height: 18px; color: #000; flex-shrink: 0; }
+  [data-theme="dark"] .nav__menu-link svg { color: #fff; }
 
   .about { grid-template-columns: 1fr; }
   .about__photo { width: 100%; max-width: 220px; margin: 0 auto; grid-row: 1; }
